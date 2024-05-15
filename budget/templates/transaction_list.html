@@ -1,0 +1,128 @@
+{%extends 'base.html'%}
+
+{%block main_block%}
+
+{%if messages%}
+{%for m in messages%}
+<div class="alert alert-warning alert-dismissible fade show mt-1" role="alert">
+    <strong> {{m}}!</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{%endfor%}
+{%endif%}
+
+
+<div style="background-color: #8EC5FC;
+    background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 100%);
+    ">
+
+
+    <h1 class="text-center"
+        style="font-family:sans-serif; color:black;"><u>Welcome
+            {{request.user}}</u></h1><br>
+
+
+    <div class="container d-flex justify-content-center gap-4 ">
+        {%for item in type_total%}
+        {%if item.type == 'expenses'%}
+        <div class="border border-secondary p-4 rounded alert alert-danger">
+            <h3>Total {{item.type}}({{item.type_count}}):{{item.type_sum}}</h3>
+
+        </div>
+        {%else%}
+        <div class="border border-secondary p-4 rounded alert alert-success">
+            <h3>Total {{item.type}}({{item.type_count}}):{{item.type_sum}}</h3>
+
+        </div>
+        {%endif%}
+        {%endfor%}
+
+    </div>
+
+
+
+
+    <div class="container d-flex justify-content-around">
+
+        {%for item in category_total%}
+        <div class="alert alert-secondary">
+            {{item.category}}({{item.cat_count}}):{{item.cat_sum}}
+
+        </div>
+        {%endfor%}
+
+    </div>
+
+    <div class="container" style="height: 400px; width: 400px;">
+        <canvas id="categorychart"></canvas>
+    </div>
+    <div class="container mt-5">
+        {%for t in data%}
+        <div class="row mb-2">
+            <div class="col-3"></div>
+            <div class="col-6 border rounded-pill p-3 shadow " style="background-color:lightblue;">
+                <div class="d-flex  justify-content-around">
+                    <div> {{t.title}}</div>
+                    <div> {{t.category}}</div>
+                    <div> {{t.amount}}</div>
+
+                    <div>
+                        <a href="{%url 'transaction-edit' t.id%} " class="btn btn-info">Edit</a>
+                        <a href="{%url 'transaction-detail' t.id%}" class="btn btn-primary">View</a>
+                        <a href="{%url 'transaction-delete' t.id%}" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3"></div>
+        </div>
+        {%endfor%}
+    </div>
+</div>
+</div>
+{%endblock%}
+
+
+{%block script_block%}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('categorychart').getContext('2d');
+    var categoryChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: [{% for category in category_total %}"{{ category.category }}",{% endfor %}],
+    datasets: [{
+        label: 'Category Totals',
+        data: [{% for category in category_total %}{{ category.cat_sum }}, {% endfor %}],
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+                borderWidth: 1
+            }]
+        },
+    options: {
+        animation: {
+            duration: 2000,
+                easing: 'easeInOutQuart'
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+    });
+</script>
+{%endblock%}
